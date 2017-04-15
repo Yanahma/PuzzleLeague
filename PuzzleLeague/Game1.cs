@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PuzzleLeague.Utilities;
 
 namespace PuzzleLeague
 {
@@ -26,7 +27,9 @@ namespace PuzzleLeague
       /// </summary>
       protected override void Initialize()
       {
-         // TODO: Add your initialization logic here
+         graphics.PreferredBackBufferHeight = 768;
+         graphics.PreferredBackBufferWidth = 1024;
+         graphics.ApplyChanges();
 
          base.Initialize();
       }
@@ -40,7 +43,20 @@ namespace PuzzleLeague
          // Create a new SpriteBatch, which can be used to draw textures.
          spriteBatch = new SpriteBatch(GraphicsDevice);
 
-         // TODO: use this.Content to load your game content here
+         ContentHelper.AddTexture("tileBlue_27", Content.Load<Texture2D>("Graphics\\tileBlue_27"));
+         ContentHelper.AddTexture("tileBlue_31", Content.Load<Texture2D>("Graphics\\tileBlue_31"));
+
+         ContentHelper.AddTexture("tileGreen_27", Content.Load<Texture2D>("Graphics\\tileGreen_27"));
+         ContentHelper.AddTexture("tileGreen_35", Content.Load<Texture2D>("Graphics\\tileGreen_35"));
+
+         ContentHelper.AddTexture("tilePink_27", Content.Load<Texture2D>("Graphics\\tilePink_27"));
+         ContentHelper.AddTexture("tilePink_30", Content.Load<Texture2D>("Graphics\\tilePink_30"));
+
+         ContentHelper.AddTexture("tileRed_27", Content.Load<Texture2D>("Graphics\\tileRed_27"));
+         ContentHelper.AddTexture("tileRed_36", Content.Load<Texture2D>("Graphics\\tileRed_36"));
+
+         ContentHelper.AddTexture("tileYellow_27", Content.Load<Texture2D>("Graphics\\tileYellow_27"));
+         ContentHelper.AddTexture("tileYellow_33", Content.Load<Texture2D>("Graphics\\tileYellow_33"));
       }
 
       /// <summary>
@@ -75,7 +91,24 @@ namespace PuzzleLeague
       {
          GraphicsDevice.Clear(Color.CornflowerBlue);
 
-         // TODO: Add your drawing code here
+         spriteBatch.Begin();
+
+         spriteBatch.Draw(ContentHelper.GetTexture("tileBlue_27"), new Rectangle(0, 0, 100, 100), Color.White);
+         spriteBatch.Draw(ContentHelper.GetTexture("tileBlue_31"), new Rectangle(25, 25, 50, 50), Color.White);
+
+         spriteBatch.Draw(ContentHelper.GetTexture("tileGreen_27"), new Rectangle(0, 100, 100, 100), Color.White);
+         spriteBatch.Draw(ContentHelper.GetTexture("tileGreen_35"), new Rectangle(25, 125, 50, 50), Color.White);
+
+         spriteBatch.Draw(ContentHelper.GetTexture("tilePink_27"), new Rectangle(0, 200, 100, 100), Color.White);
+         spriteBatch.Draw(ContentHelper.GetTexture("tilePink_30"), new Rectangle(25, 225, 50, 50), Color.White);
+
+         spriteBatch.Draw(ContentHelper.GetTexture("tileRed_27"), new Rectangle(0, 300, 100, 100), Color.White);
+         spriteBatch.Draw(ContentHelper.GetTexture("tileRed_36"), new Rectangle(25, 325, 50, 50), Color.White);
+
+         spriteBatch.Draw(ContentHelper.GetTexture("tileYellow_27"), new Rectangle(0, 400, 100, 100), Color.White);
+         spriteBatch.Draw(ContentHelper.GetTexture("tileYellow_33"), new Rectangle(25, 425, 50, 50), Color.White);
+
+         spriteBatch.End();
 
          base.Draw(gameTime);
       }
