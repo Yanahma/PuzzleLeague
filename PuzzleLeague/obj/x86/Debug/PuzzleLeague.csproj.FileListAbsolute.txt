@@ -1,0 +1,8 @@
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\OpenTK.dll.config
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\PuzzleLeague.exe
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\PuzzleLeague.pdb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\MonoGame.Framework.dll
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\NVorbis.dll
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\OpenTK.dll
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\obj\x86\Debug\PuzzleLeague.exe
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\obj\x86\Debug\PuzzleLeague.pdb
