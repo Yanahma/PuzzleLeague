@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_27.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_31.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_27.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_35.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_27.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_30.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_27.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_36.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_27.png</File>
+    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_33.png</File>
+  </SourceFiles>
+</SourceFileCollection>
