@@ -95,7 +95,7 @@ namespace PuzzleLeague
          spriteBatch.Begin();
 
          var x = 0;
-         y += 1;
+         //y += 1;
          Texture2D textureBox, textureIcon;
          for (var i = 0; i < 5; i++)
          {
@@ -123,9 +123,9 @@ namespace PuzzleLeague
                   textureIcon = ContentHelper.GetTexture("tileYellow_33");
                   break;
             }
-            spriteBatch.Draw(textureBox, new Rectangle(x, y, 54, 54), Color.White);
-            spriteBatch.Draw(textureIcon, new Rectangle(x + 14, y + 14, 27, 27), Color.White);
-            x += 108;
+            spriteBatch.Draw(textureBox, new Vector2(x, y), Color.White);
+            spriteBatch.Draw(textureIcon, new Vector2(x + textureBox.Width/4, y + textureBox.Height/4), Color.White);
+            x += 54;
          }
          spriteBatch.End();
 
