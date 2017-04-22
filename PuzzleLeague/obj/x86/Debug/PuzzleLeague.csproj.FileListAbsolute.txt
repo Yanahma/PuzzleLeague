@@ -17,3 +17,5 @@ g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Graphics\tileYellow_27.xnb
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Graphics\tileYellow_33.xnb
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\obj\x86\Debug\PuzzleLeague.csprojResolveAssemblyReference.cache
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Background\gameBoardBackground.xnb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Background\gameBoardOverlayCheat.xnb

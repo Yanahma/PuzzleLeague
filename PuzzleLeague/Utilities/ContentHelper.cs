@@ -10,14 +10,10 @@ namespace PuzzleLeague.Utilities
    /// </summary>
    public static class ContentHelper
    {
-      /// <summary>
-      /// Private dictionary to hold loaded textures
-      /// </summary>
+      // The dictionary that is holding the string/texture combinations
       private static Dictionary<string,Texture2D> textures;
 
-      /// <summary>
-      /// Static constructor
-      /// </summary>
+      // Static constructor
       static ContentHelper()
       {
          textures = new Dictionary<string, Texture2D>();
@@ -30,16 +26,10 @@ namespace PuzzleLeague.Utilities
       /// <param name="texture">The loaded texture (use Main.Content to load)</param>
       public static void AddTexture(string name, Texture2D texture)
       {
-         // Make sure this is not a duplicate entry
          if (!(textures.ContainsKey(name)))
-         {
             textures.Add(name, texture);
-         }
-         // If this is a duplicate entry, throw an error
          else
-         {
             throw new Exception("Attempting to add a texture twice in ContentHelper");
-         }
       }
 
       /// <summary>
@@ -49,16 +39,10 @@ namespace PuzzleLeague.Utilities
       /// <returns>The associated texture</returns>
       public static Texture2D GetTexture(string name)
       {
-         // Make sure this entry actually exists 
          if (textures.ContainsKey(name))
-         {
             return textures[name];
-         }
-         // If no entry for this texture exists, throw an error
          else
-         {
-            throw new IndexOutOfRangeException("Attempting to retrieve a texture that has not been added to the ContentHelper");
-         }
+            throw new IndexOutOfRangeException("Attempting to retrieve a texture is not loaded in ContentHelper");
       }
    }
 }
