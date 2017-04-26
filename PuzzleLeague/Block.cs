@@ -16,7 +16,7 @@ namespace PuzzleLeague
       Pink,
       Yellow,
       Green,
-      Blue 
+      Blue
    }
 
    /// <summary>
@@ -24,14 +24,30 @@ namespace PuzzleLeague
    /// </summary>
    class Block
    {
-      // Defines which type of Block this is (cannot change)
-      private readonly BlockType type;
+      //
+      // Private Fields
+      //
+
+      // Defines the alpha of the drawColor (used to disappear)
+      private int alpha = 255;
+
+      // Defines the color to draw (start at white)
+      private Color drawColor = Color.White;
+
+      // Defines whether this block has been matched
+      private bool isMatched = false;
 
       // Defines the X,Y position of this Block
       private Vector2 position;
 
       // Defines who this Block belongs to (used for positioning)
       private Row parent;
+
+      // Defines the current "state" of the block
+      private BlockState state;
+
+      // Defines which type of Block this is (cannot change)
+      private readonly BlockType type;
 
       // Get-only access to the tile texture (based on type)
       private Texture2D TileTexture
@@ -77,8 +93,52 @@ namespace PuzzleLeague
          }
       }
 
+      //
+      // Private enums
+      //
+
+      /// <summary>
+      /// Private enum to define the different "states" a block can be in
+      /// </summary>
+      public enum BlockState
+      {
+         None,
+         Falling,
+         Blinking,
+         Disappearing,
+         Removed
+      }
+
+      //
+      // Public Properties
+      //
+
+      // Public accessor for isMatched field
+      public bool IsMatched
+      {
+         get { return isMatched; }
+         set
+         {
+            if(value != isMatched && value == true)
+            {
+               isMatched = value;
+               state = BlockState.Blinking;
+            }
+         }
+      }
+
       // Public accessor for 'type' field 
       public BlockType Type { get { return type; } }
+
+      //
+      // Public constants
+      //
+
+      // Describes the default height of a block
+      public const int BlockHeight = 54;
+
+      // Describes the default width of a block
+      public const int BlockWidth = 54;
 
       //
       // Constructor
@@ -93,7 +153,7 @@ namespace PuzzleLeague
 
          // Set default position based on parent
          position.Y = parent.Position.Y;
-         position.X = parent.Position.X + (parent.IndexOfBlock(this)) * 54;
+         position.X = parent.Position.X + (parent.IndexOfBlock(this)) * BlockWidth;
       }
 
       /// <summary>
@@ -101,13 +161,9 @@ namespace PuzzleLeague
       /// </summary>
       /// <param name="parent">The parent row this block belongs to</param>
       /// <returns>A new block object of a random type (not empty)</returns>
-      static Random rng = new Random();
       public static Block RndBlockExcEmpty(Row parent)
       {
-         // Get a random block type from the enum
-         //BlockType rndType = (BlockType)(Enum.GetValues(typeof(BlockType))).GetValue(rng.Next(1,6));
-         BlockType rndType = (BlockType)rng.Next(1,6);
-         return new Block(parent, rndType);
+         return new Block(parent, (BlockType)RandomHelper.Next(1, 6));
       }
 
       /// <summary>
@@ -117,29 +173,77 @@ namespace PuzzleLeague
       /// <returns>A new block object of a random type</returns>
       public static Block RndBlockIncEmpty(Row parent)
       {
-         // Get a random block type from the enum
-         BlockType rndType = (BlockType)(Enum.GetValues(typeof(BlockType)).GetValue(RandomHelper.Next(0,6)));
-         return new Block(parent, rndType);
+         return new Block(parent, (BlockType)RandomHelper.Next(0, 6));
       }
 
-      #region Game Loop lifecycle
+      // Main update method
       public void Update()
       {
          if (parent != null)
          {
             position.Y = parent.Position.Y;
-            position.X = position.X = parent.Position.X + (parent.IndexOfBlock(this)) * 54;
-         }                        
+            position.X = position.X = parent.Position.X + (parent.IndexOfBlock(this)) * BlockWidth;
+         }
       }
 
+      private int count = 0;
+
+      // Main draw method
       public void Draw(SpriteBatch spriteBatch)
       {
-         if (type != BlockType.Empty)
+         // Do not do anything if the block is an empty block
+         if (type == BlockType.Empty)
+            return;
+
+         // Decide if we should draw depending on the current block state
+         bool draw = true;
+         switch (state)
          {
-            spriteBatch.Draw(TileTexture, position, Color.White);
-            spriteBatch.Draw(SymbolTexture, new Vector2(position.X + 14, position.Y + 14), Color.White);
-         }    
+            case BlockState.None:
+               break; // Draw default block
+            case BlockState.Falling:
+               break; // Draw falling block
+            case BlockState.Blinking:
+               if (Time.FrameCount % 2 == 0)
+                  draw = false; // Draw blinking block every other frame
+               count += 1;
+               if (count >= 200)
+                  state = BlockState.Disappearing;
+               break;
+            case BlockState.Disappearing:
+               alpha = alpha - 9 < 0 ? 0 : alpha - 9;
+               drawColor = new Color(alpha, alpha, alpha, alpha); // Change draw color to slowly fade
+               if (alpha == 0)
+                  state = BlockState.Removed;
+               break;
+            case BlockState.Removed:
+               draw = false; break; // Do not draw "removed" blocks
+         }
+
+         if (draw)
+         {
+            // Create a point for the "actual" position of the tile
+            Point actualPosition = new Point(
+               ScaleHelper.ScaleWidth((int)position.X),
+               (int)position.Y);
+
+            // Create a point for the "actual" scale of the tile
+            Point actualScale = ScaleHelper.ScalePoint(new Point(BlockWidth,BlockHeight));
+
+            // Draw the tile
+            spriteBatch.Draw(TileTexture, new Rectangle(actualPosition, actualScale), drawColor);
+
+            // Calculate the "actual" position of the symbol (add 1/4 of the block height)
+            actualPosition.X += (int)Math.Ceiling((float)actualScale.X / 4);
+            actualPosition.Y += (int)Math.Ceiling((float)actualScale.Y / 4);
+
+            // Calculate the scale of the symbol (half of that of the block)
+            actualScale.X /= 2;
+            actualScale.Y /= 2;
+
+            // Draw the symbol
+            spriteBatch.Draw(SymbolTexture, new Rectangle(actualPosition, actualScale), drawColor);
+         }
       }
-      #endregion
    }
 }
