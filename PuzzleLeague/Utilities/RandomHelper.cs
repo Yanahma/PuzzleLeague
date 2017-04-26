@@ -7,31 +7,27 @@ namespace PuzzleLeague.Utilities
    /// </summary>
    public static class RandomHelper
    {
-      /// <summary>
-      /// Private, static Random object
-      /// </summary>
-      private static Random rng;
-      
-      /// <summary>
-      /// Private constructor to init Random object
-      /// </summary>
+      // Private, static random object
+      private static Random random;
+
+      // Private, static constructor to initialize the random object
       static RandomHelper()
       {
-         rng = new Random();
+         random = new Random();
       }
 
       /// <summary>
       /// Static access to "Next" function
       /// </summary>
       /// <returns>A random integer</returns>
-      public static int Next() => rng.Next();
+      public static int Next() => random.Next();
 
       /// <summary>
       /// Static access to "Next" function with a maximum value
       /// </summary>
       /// <param name="max">The maximum value of the random integer</param>
       /// <returns>A random integer within the selected range</returns>
-      public static int Next(int max) => rng.Next(max);
+      public static int Next(int max) => random.Next(max);
 
       /// <summary>
       /// Static access to "Next" function with a min/max range
@@ -39,6 +35,6 @@ namespace PuzzleLeague.Utilities
       /// <param name="min">The minimum value of the random integer</param>
       /// <param name="max">The maximum value of the random integer</param>
       /// <returns>A random integer within the selected range</returns>
-      public static int Next(int min, int max) => rng.Next(min, max);
+      public static int Next(int min, int max) => random.Next(min, max);
    }
 }
