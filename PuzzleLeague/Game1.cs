@@ -12,6 +12,10 @@ namespace PuzzleLeague
    /// </summary>
    public class Game1 : Game
    {
+      //
+      // Private fields
+      //
+
       // The Graphics Device Manager for this game
       private GraphicsDeviceManager graphics;
       
@@ -21,20 +25,6 @@ namespace PuzzleLeague
       // The current GameBoard (temp - replace with scenes)
       private GameBoard gameBoard = new GameBoard();
 
-      private static Game1 instance;
-
-      //Expose graphics.PreferredBackBufferHeight
-      public static int BackBufferHeight
-      {
-         get { return instance.graphics.PreferredBackBufferHeight; }
-      }
-
-      // Expose graphics.PreferredBackBufferWidth
-      public static int BackBufferWidth
-      {
-         get { return instance.graphics.PreferredBackBufferWidth; }
-      }
-
       //
       // Constructor
       //
@@ -42,10 +32,6 @@ namespace PuzzleLeague
       {
          graphics = new GraphicsDeviceManager(this);
          Content.RootDirectory = "Content";
-         if (instance == null)
-            instance = this;
-         else
-            throw new Exception("Attempting to create two instances of Game1");
       }
 
       /// <summary>
@@ -57,9 +43,14 @@ namespace PuzzleLeague
       protected override void Initialize()
       {
          // We want to default to 1280x720
-         graphics.PreferredBackBufferHeight = 720;
+         //graphics.PreferredBackBufferWidth = 640;
+         //graphics.PreferredBackBufferHeight = 360;
          graphics.PreferredBackBufferWidth = 1280;
+         graphics.PreferredBackBufferHeight = 720;
+         //graphics.PreferredBackBufferWidth = 1920;
+         //graphics.PreferredBackBufferHeight = 1080;
          graphics.ApplyChanges();
+         ScaleHelper.UpdateBufferValues(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
 
          base.Initialize();
       }
@@ -87,6 +78,9 @@ namespace PuzzleLeague
          ContentHelper.AddTexture("tileRed_36", Content.Load<Texture2D>("Graphics\\tileRed_36"));
          ContentHelper.AddTexture("tileYellow_33", Content.Load<Texture2D>("Graphics\\tileYellow_33"));
 
+         // Add player texture
+         ContentHelper.AddTexture("player", Content.Load<Texture2D>("Graphics\\player"));
+
          // Add background textures for the GameBoard
          ContentHelper.AddTexture("gameBoardBackground", Content.Load<Texture2D>("Background\\gameBoardBackground"));
          ContentHelper.AddTexture("gameBoardOverlayCheat", Content.Load<Texture2D>("Background\\gameBoardOverlayCheat"));
@@ -106,6 +100,13 @@ namespace PuzzleLeague
       /// <param name="gameTime">Provides a snapshot of timing values.</param>
       protected override void Update(GameTime gameTime)
       {
+         // Emergency exit
+         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            Exit();
+
+         // Update the static "Time" class
+         Time.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
          // Update the game
          gameBoard.Update();
          base.Update(gameTime);
