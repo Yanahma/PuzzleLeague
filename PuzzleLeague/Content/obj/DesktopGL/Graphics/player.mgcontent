@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/player.png</SourceFile>
-  <SourceTime>2017-04-23T19:38:11.9301727+01:00</SourceTime>
+  <SourceTime>2017-04-26T21:11:01.530279+01:00</SourceTime>
   <DestFile>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/bin/DesktopGL/Graphics/player.xnb</DestFile>
-  <DestTime>2017-04-24T18:32:59.4302555+01:00</DestTime>
+  <DestTime>2017-04-28T07:38:12.7358795+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-30T07:36:08+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

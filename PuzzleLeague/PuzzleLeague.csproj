@@ -46,9 +46,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Row.cs" />
     <Compile Include="Utilities\ContentHelper.cs" />
+    <Compile Include="Utilities\InputHelper.cs" />
     <Compile Include="Utilities\RandomHelper.cs" />
     <Compile Include="Utilities\ScaleHelper.cs" />
     <Compile Include="Utilities\Time.cs" />
+    <Compile Include="Utilities\Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">
@@ -65,18 +67,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
-    <Content Include="Content\Background\gameBoardBackground.png" />
-    <Content Include="Content\Background\gameBoardOverlayCheat.png" />
-    <Content Include="Content\Graphics\tileBlue_27.png" />
-    <Content Include="Content\Graphics\tileBlue_31.png" />
-    <Content Include="Content\Graphics\tileGreen_27.png" />
-    <Content Include="Content\Graphics\tileGreen_35.png" />
-    <Content Include="Content\Graphics\tilePink_27.png" />
-    <Content Include="Content\Graphics\tilePink_30.png" />
-    <Content Include="Content\Graphics\tileRed_27.png" />
-    <Content Include="Content\Graphics\tileRed_36.png" />
-    <Content Include="Content\Graphics\tileYellow_27.png" />
-    <Content Include="Content\Graphics\tileYellow_33.png" />
     <Content Include="OpenTK.dll.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
