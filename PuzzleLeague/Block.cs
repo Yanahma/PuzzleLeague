@@ -28,9 +28,6 @@ namespace PuzzleLeague
       // Private Fields
       //
 
-      // Defines the alpha of the drawColor (used to disappear)
-      private int alpha = 255;
-
       // Defines the color to draw (start at white)
       private Color drawColor = Color.White;
 
@@ -43,11 +40,14 @@ namespace PuzzleLeague
       // Defines who this Block belongs to (used for positioning)
       private Row parent;
 
+      // Timer used to time the blinking/disappearing
+      private Timer blockStateTimer;
+
       // Defines the current "state" of the block
       private BlockState state;
 
       // Defines which type of Block this is (cannot change)
-      private readonly BlockType type;
+      private BlockType type;
 
       // Get-only access to the tile texture (based on type)
       private Texture2D TileTexture
@@ -100,7 +100,7 @@ namespace PuzzleLeague
       /// <summary>
       /// Private enum to define the different "states" a block can be in
       /// </summary>
-      public enum BlockState
+      private enum BlockState
       {
          None,
          Falling,
@@ -113,22 +113,44 @@ namespace PuzzleLeague
       // Public Properties
       //
 
-      // Public accessor for isMatched field
-      public bool IsMatched
+      // Public property that holds the conditions in which this block can be matched
+      public bool CanBeMatched
       {
-         get { return isMatched; }
-         set
+         get
          {
-            if(value != isMatched && value == true)
+            // Not already matched
+            if (!(isMatched)
+               // Not an empty block
+               && !(type == BlockType.Empty)
+               // Is active
+               && parent.isActive == true)
             {
-               isMatched = value;
-               state = BlockState.Blinking;
+               return true;
             }
+
+            return false;
+         }
+      }
+
+      // Public property that holds the conditions in which this block can be swapped
+      public bool CanBeSwapped
+      {
+         get
+         {
+            // Not already matched
+            if (!(isMatched))
+            {
+               return true;
+            }
+            return false;
          }
       }
 
       // Public accessor for 'type' field 
-      public BlockType Type { get { return type; } }
+      public BlockType Type
+      {
+         get { return type; }
+      }
 
       //
       // Public constants
@@ -153,24 +175,48 @@ namespace PuzzleLeague
 
          // Set default position based on parent
          position.Y = parent.Position.Y;
-         position.X = parent.Position.X + (parent.IndexOfBlock(this)) * BlockWidth;
+         position.X = parent.Position.X + (parent.IndexOf(this)) * BlockWidth;
+
+         // Init the timer
+         blockStateTimer = new Timer();
+         blockStateTimer.OnComplete += SetStateDisappearing;
+         blockStateTimer.SetTimer(1);
       }
 
-      /// <summary>
-      /// Create a random block of any type, excluding empty
-      /// </summary>
-      /// <param name="parent">The parent row this block belongs to</param>
-      /// <returns>A new block object of a random type (not empty)</returns>
+      // Alter the parent of this block
+      public void SetParent(Row parent)
+      {
+         this.parent = parent;
+      }
+
+      // Code to handle when this block gets matched
+      public void OnMatched()
+      {
+         // Make sure we don't do the same thing twice
+         if (!(isMatched))
+         {
+            isMatched = true;
+            state = BlockState.Blinking;
+
+            // Start the countdown for disppearing
+            blockStateTimer.StartTimer();
+         }
+      }
+
+      // State changing event used to fade the block out
+      public void SetStateDisappearing(object sender, EventArgs e)
+      {
+         state = BlockState.Disappearing;
+         blockStateTimer.StopTimer();
+      }
+
+      // Return a random block (doesn't include empty)
       public static Block RndBlockExcEmpty(Row parent)
       {
          return new Block(parent, (BlockType)RandomHelper.Next(1, 6));
       }
 
-      /// <summary>
-      /// Create a random block of any type, including empty
-      /// </summary>
-      /// <param name="parent">The parent row this block belongs to</param>
-      /// <returns>A new block object of a random type</returns>
+      // Return a random block (includes empty)
       public static Block RndBlockIncEmpty(Row parent)
       {
          return new Block(parent, (BlockType)RandomHelper.Next(0, 6));
@@ -182,42 +228,52 @@ namespace PuzzleLeague
          if (parent != null)
          {
             position.Y = parent.Position.Y;
-            position.X = position.X = parent.Position.X + (parent.IndexOfBlock(this)) * BlockWidth;
+            position.X = position.X = parent.Position.X + (parent.IndexOf(this)) * BlockWidth;
+
+            if (state == BlockState.Removed)
+            {
+               type = BlockType.Empty;
+               parent.RemoveBlock(parent.IndexOf(this));
+               parent = null;
+            }
          }
       }
 
-      private int count = 0;
 
       // Main draw method
       public void Draw(SpriteBatch spriteBatch)
       {
-         // Do not do anything if the block is an empty block
          if (type == BlockType.Empty)
-            return;
+            return; // Never draw empty blocks
 
          // Decide if we should draw depending on the current block state
          bool draw = true;
          switch (state)
          {
+            // Draw default block
             case BlockState.None:
-               break; // Draw default block
+               break;
+            // Draw falling block
             case BlockState.Falling:
-               break; // Draw falling block
+               break;
+            // Draw blinking block every other frame
             case BlockState.Blinking:
                if (Time.FrameCount % 2 == 0)
-                  draw = false; // Draw blinking block every other frame
-               count += 1;
-               if (count >= 200)
-                  state = BlockState.Disappearing;
+                  draw = false;
                break;
+            // Change draw color to slowly fade
             case BlockState.Disappearing:
-               alpha = alpha - 9 < 0 ? 0 : alpha - 9;
-               drawColor = new Color(alpha, alpha, alpha, alpha); // Change draw color to slowly fade
-               if (alpha == 0)
+               drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
+               // drawColor = new Color(alpha, alpha, alpha, alpha);
+               if (drawColor.A == 0)
+               {
                   state = BlockState.Removed;
+                  draw = false;
+               }
                break;
+            // Do not draw "removed" blocks
             case BlockState.Removed:
-               draw = false; break; // Do not draw "removed" blocks
+               draw = false; break;
          }
 
          if (draw)
