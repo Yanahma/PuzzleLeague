@@ -23,7 +23,7 @@ namespace PuzzleLeague
       private SpriteBatch spriteBatch;
 
       // The current GameBoard (temp - replace with scenes)
-      private GameBoard gameBoard = new GameBoard();
+      private GameBoard gameBoard;
 
       //
       // Constructor
@@ -52,6 +52,7 @@ namespace PuzzleLeague
          graphics.ApplyChanges();
          ScaleHelper.UpdateBufferValues(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
 
+         gameBoard = new GameBoard();
          base.Initialize();
       }
 
@@ -80,6 +81,7 @@ namespace PuzzleLeague
 
          // Add player texture
          ContentHelper.AddTexture("player", Content.Load<Texture2D>("Graphics\\player"));
+         Player.LoadContent();
 
          // Add background textures for the GameBoard
          ContentHelper.AddTexture("gameBoardBackground", Content.Load<Texture2D>("Background\\gameBoardBackground"));
@@ -107,8 +109,15 @@ namespace PuzzleLeague
          // Update the static "Time" class
          Time.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
-         // Update the game
+         // Update any timers that are running
+         Timer.Update();
+
+         // Update the input helper class to detect input on this frame
+         InputHelper.Update();
+
+         // Update the active gameboard
          gameBoard.Update();
+
          base.Update(gameTime);
       }
 
@@ -119,12 +128,12 @@ namespace PuzzleLeague
       protected override void Draw(GameTime gameTime)
       {
          GraphicsDevice.Clear(Color.CornflowerBlue);
-
-         // Draw the game
          spriteBatch.Begin();
-         gameBoard.Draw(spriteBatch);
-         spriteBatch.End();
 
+         // Draw the active gameboard
+         gameBoard.Draw(spriteBatch);
+
+         spriteBatch.End();
          base.Draw(gameTime);
       }
    }
