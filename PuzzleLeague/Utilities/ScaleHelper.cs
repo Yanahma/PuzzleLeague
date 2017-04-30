@@ -18,21 +18,21 @@ namespace PuzzleLeague.Utilities
       private static int backBufferWidth;
 
       // Stores the const height of the "true" scale of the game
-      private const int Height = 720;
+      private const int PreferredHeight = 720;
 
       // Stores the const width of the "true" scale of the game
-      private const int Width = 1280;
+      private const int PreferredWidth = 1280;
 
       // The height scale used to determine scaled rectangles/positions
       private static float HeightScale
       {
-         get { return (float)backBufferHeight / Height; }
+         get { return (float)backBufferHeight / PreferredHeight; }
       }
 
       // The width scale used to determine scaled rectangles/positions
       private static float WidthScale
       {
-         get { return (float)backBufferWidth / Width; }
+         get { return (float)backBufferWidth / PreferredWidth; }
       }
 
       //
