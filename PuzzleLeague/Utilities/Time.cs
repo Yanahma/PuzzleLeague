@@ -6,44 +6,26 @@ using System.Threading.Tasks;
 
 namespace PuzzleLeague
 {
+   /// <summary>
+   /// Static class to provide global access to useful time related fields
+   /// </summary>
    public static class Time
    {
-      // Holds the total amount of time that has elapsed since the game started
-      private static float elapsedTime;
+      // The total amount of time that has elapsed since the game started
+      public static float ElapsedTime { get; private set; }
 
-      // Holds the total number of frames since the game started 
-      private static float frameCount;
+      // The time elapsed in the previous frame
+      public static float DeltaTime { get; private set; }
 
-      // Holds the deltaTime (time elapsed in the previous frame)
-      private static float deltaTime;
-
-      // Public access to elapsedTime
-      public static float ElapsedTime
-      {
-         get { return elapsedTime; }
-      }
-
-      // Public access to deltaTime
-      public static float DeltaTime
-      {
-         get { return deltaTime; }
-      }
-
-      // Public access to frameCount
-      public static float FrameCount
-      {
-         get { return frameCount; }
-      }
+      // The total number of frames since the game started
+      public static float FrameCount { get; private set; }
 
       // Update (called once per frame in Game1.cs)
       public static void Update(float dt)
       {
-         // Add to elapsedTime
-         elapsedTime += dt;
-         // Update deltaTime
-         deltaTime = dt;
-         // Add to frameCount
-         frameCount++;
+         DeltaTime = dt;
+         ElapsedTime += dt;
+         FrameCount++;
       }
 
    }
