@@ -25,10 +25,14 @@ namespace PuzzleLeague
       private Timer rowMovingTimer;
 
       // Private float for the value of the row moving timer
+      //private float rowMovingTimerSetValue = 0.8f;
       private float rowMovingTimerSetValue = 0.05f;
 
       // Reference to the player object
       private Player player;
+
+      // Reference to the score object
+      private Score score;
 
       //
       // Public constants
@@ -36,6 +40,9 @@ namespace PuzzleLeague
 
       // Where a row's X should start (used in Row constructor)
       public const int GameBoardXAnchor = 306;
+
+      // The maximum "level" that can be reached
+      public const int maxLevel = 80;
 
       // The current Y offset (bad naming - affects row and player position, when to add rows etc.)
       public int YOffset = 0;
@@ -60,14 +67,17 @@ namespace PuzzleLeague
             columnIsDirty[i] = true;
          }
 
-         // Add the first row
-         AddRow();
-
          // Init the row adding timer
          rowMovingTimer = new Timer(true); // "true" here means it is a looping timer
          rowMovingTimer.OnComplete += MoveRowsUp;
          rowMovingTimer.SetTimer(rowMovingTimerSetValue);
          rowMovingTimer.StartTimer();
+
+         // Add the first row
+         AddRow();
+
+         // Init the scoreboard
+         score = new Score();
       }
 
       // Mark ALL columns as dirty
@@ -89,19 +99,16 @@ namespace PuzzleLeague
       public void Update()
       {
          // Once a full row has been exposed on the bottom line, add another
-         if(YOffset >= ScaleHelper.ScaleHeight(Block.BlockHeight))
+         if (YOffset >= ScaleHelper.ScaleHeight(Block.BlockHeight))
          {
-            rows[0].isActive = true; // Flag bottom row as active
-            AddRow();
-            FlagAllColumns();
-            YOffset = 0; // Reset the Y offset
+            AddRow(); YOffset = 0; // Reset the Y offset
          }
 
          // Update the player
          player.Update();
 
          // Update the rows
-         for(var i = rows.Count - 1; i >= 0; i--)
+         for (var i = rows.Count - 1; i >= 0; i--)
          {
             rows[i].Update();
          }
@@ -131,6 +138,9 @@ namespace PuzzleLeague
          // Draw the player
          player.Draw(spriteBatch);
 
+         // Draw the score
+         score.Draw(spriteBatch);
+
          // Finally, draw the background overlay
          spriteBatch.Draw(ContentHelper.GetTexture("gameBoardOverlayCheat"), drawTo, Color.White);
       }
@@ -141,6 +151,10 @@ namespace PuzzleLeague
       // Add a random row to this GameBoard
       public void AddRow()
       {
+         // Flag the bottom row as active, if present
+         if (rows.Count > 0)
+            rows[0].isActive = true;
+
          // Get a new random row
          Row randomRow = Row.RandomRow(this);
 
@@ -151,6 +165,10 @@ namespace PuzzleLeague
             columns[i].Insert(0, randomRow[i]);
             columnIsDirty[i] = true;
          }
+
+         // Increase speed
+         //rowMovingTimerSetValue -= 0.01f;
+         //rowMovingTimer.SetTimer(rowMovingTimerSetValue);
 
          // Player needs updating when a row is added too
          player.OnRowAdded();
@@ -295,7 +313,10 @@ namespace PuzzleLeague
 
          // Finally, tag all the blocks that have been matched
          foreach (Block block in allMatchedBlocks)
+         {
             block.OnMatched();
+            score.AddScore(RandomHelper.Next(100, 999));
+         }
       }
 
       /// <summary>
