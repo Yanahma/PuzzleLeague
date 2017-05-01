@@ -23,7 +23,7 @@ namespace PuzzleLeague
       private Block[] blocks;
 
       // Defines the X,Y position of this Row
-      private Vector2 position;
+      private Point position;
 
       // Private property to return if this row is full of empty blocks
       private bool isEmpty
@@ -62,7 +62,7 @@ namespace PuzzleLeague
       }
 
       // Public accessor for 'position' field 
-      public Vector2 Position
+      public Point Position
       {
          get { return position; }
       }
@@ -76,7 +76,7 @@ namespace PuzzleLeague
          blocks = new Block[6];
 
          // Set the X position to match the gameboard anchor, the Y position to the height of the screen
-         position = new Vector2(GameBoard.GameBoardXAnchor, ScaleHelper.BackBufferHeight);
+         position = new Point(GameBoard.GameBoardXAnchor, ScaleHelper.BackBufferHeight);
       }
 
       // Add a block to the "blocks" array
@@ -130,6 +130,11 @@ namespace PuzzleLeague
          {
             rndRow.AddBlock(Block.RndBlockExcEmpty(rndRow), i);
          }
+
+         // Correctly assign positions
+         foreach (Block b in rndRow.blocks)
+            b.ResetPosition();
+
          return rndRow;
       }
 
@@ -155,6 +160,13 @@ namespace PuzzleLeague
             blocks[position2] = save;
             isDirty = true;
          }
+      }
+
+      // Dirty both this row & the affected block column
+      public void DirtyRowAndColumn(int columnIndex)
+      {
+         isDirty = true;
+         parent.FlagColumn(columnIndex);
       }
    }
 }
