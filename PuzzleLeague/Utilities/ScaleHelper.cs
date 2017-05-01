@@ -51,6 +51,12 @@ namespace PuzzleLeague.Utilities
          get { return backBufferWidth; }
       }
 
+      // Static access to a Vector2 with width/height scale in the x,y
+      public static Vector2 ScreenScaleVector
+      {
+         get { return new Vector2(WidthScale, HeightScale); }
+      }
+
       //
       // Static functions
       //
