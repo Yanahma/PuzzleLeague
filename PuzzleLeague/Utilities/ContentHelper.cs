@@ -10,13 +10,17 @@ namespace PuzzleLeague.Utilities
    /// </summary>
    public static class ContentHelper
    {
-      // The dictionary that is holding the string/texture combinations
+      // The dictionary that holds the string/texture combinations
       private static Dictionary<string,Texture2D> textures;
+
+      // The dictionary that holds the string/spritefont combinations
+      private static Dictionary<string,SpriteFont> fonts;
 
       // Static constructor
       static ContentHelper()
       {
          textures = new Dictionary<string, Texture2D>();
+         fonts = new Dictionary<string, SpriteFont>();
       }
 
       /// <summary>
@@ -42,7 +46,34 @@ namespace PuzzleLeague.Utilities
          if (textures.ContainsKey(name))
             return textures[name];
          else
-            throw new IndexOutOfRangeException("Attempting to retrieve a texture is not loaded in ContentHelper");
+            throw new IndexOutOfRangeException("Attempting to retrieve a Texture2D that isn't loaded in ContentHelper");
       }
+
+      /// <summary>
+      /// Method for adding a font to the contenthelper
+      /// </summary>
+      /// <param name="name">The name of this font (same as content name)</param>
+      /// <param name="spriteFont">The loaded font (use Main.Content to load)</param>
+      public static void AddFont(string name, SpriteFont spriteFont)
+      {
+         if (!(fonts.ContainsKey(name)))
+            fonts.Add(name, spriteFont);
+         else
+            throw new Exception("Attempting to add a font twice in ContentHelper");
+      }
+
+      /// <summary>
+      /// Method to access a loaded font from a given string name
+      /// </summary>
+      /// <param name="name">The name of this font (same as content name)</param>
+      /// <returns>The associated font</returns>
+      public static SpriteFont GetFont(string name)
+      {
+         if (fonts.ContainsKey(name))
+            return fonts[name];
+         else
+            throw new IndexOutOfRangeException("Attempting to retrieve a SpriteFont that isn't loaded in ContentHelper");
+      }
+
    }
 }
