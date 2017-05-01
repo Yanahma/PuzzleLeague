@@ -16,7 +16,8 @@ namespace PuzzleLeague.Utilities
       Left,
       Right,
       Confirm,
-      Return
+      Enter,
+      Escape
    }
 
    /// <summary>
@@ -89,7 +90,9 @@ namespace PuzzleLeague.Utilities
          KeyMappings.Add(Buttons.Right, Keys.Right);
          KeyMappings.Add(Buttons.Up, Keys.Up);
          KeyMappings.Add(Buttons.Down, Keys.Down);
+
          KeyMappings.Add(Buttons.Confirm, Keys.A);
+         KeyMappings.Add(Buttons.Enter, Keys.Space);
 
          // Initalize the "buttonEnums" array with the values of all types of "Buttons" 
          buttonEnums = Enum.GetValues(typeof(Buttons));
