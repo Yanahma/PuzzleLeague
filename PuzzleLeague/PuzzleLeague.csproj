@@ -45,6 +45,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Row.cs" />
+    <Compile Include="Score.cs" />
     <Compile Include="Utilities\ContentHelper.cs" />
     <Compile Include="Utilities\InputHelper.cs" />
     <Compile Include="Utilities\RandomHelper.cs" />
