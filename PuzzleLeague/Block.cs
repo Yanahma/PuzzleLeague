@@ -34,8 +34,11 @@ namespace PuzzleLeague
       // Defines whether this block has been matched
       private bool isMatched = false;
 
+      // Defines whether this block can be matched/moved etc.
+      private bool isActive = true;
+
       // Defines the X,Y position of this Block
-      private Vector2 position;
+      private Point position;
 
       // Defines who this Block belongs to (used for positioning)
       private Row parent;
@@ -122,8 +125,10 @@ namespace PuzzleLeague
             if (!(isMatched)
                // Not an empty block
                && !(type == BlockType.Empty)
-               // Is active
-               && parent.isActive == true)
+               // Parent is active
+               && parent.isActive
+               // Block is active
+               && isActive)
             {
                return true;
             }
@@ -138,7 +143,9 @@ namespace PuzzleLeague
          get
          {
             // Not already matched
-            if (!(isMatched))
+            if (!(isMatched)
+            // Block is active
+               && isActive)
             {
                return true;
             }
@@ -173,10 +180,6 @@ namespace PuzzleLeague
          // Assign block type
          this.type = type;
 
-         // Set default position based on parent
-         position.Y = parent.Position.Y;
-         position.X = parent.Position.X + (parent.IndexOf(this)) * BlockWidth;
-
          // Init the timer
          blockStateTimer = new Timer();
          blockStateTimer.OnComplete += SetStateDisappearing;
@@ -187,6 +190,17 @@ namespace PuzzleLeague
       public void SetParent(Row parent)
       {
          this.parent = parent;
+      }
+
+      // Set default position based on parent
+      public void ResetPosition()
+      {
+         if (parent != null)
+         {
+            position = new Point(
+            parent.Position.X + (parent.IndexOf(this)) * BlockWidth,
+            parent.Position.Y);
+         }
       }
 
       // Code to handle when this block gets matched
@@ -227,9 +241,7 @@ namespace PuzzleLeague
       {
          if (parent != null)
          {
-            position.Y = parent.Position.Y;
-            position.X = position.X = parent.Position.X + (parent.IndexOf(this)) * BlockWidth;
-
+            HandlePosition();
             if (state == BlockState.Removed)
             {
                type = BlockType.Empty;
@@ -239,6 +251,69 @@ namespace PuzzleLeague
          }
       }
 
+      int maximumFrameMove = 10;
+      // Used to "animate" the block if the new position is too far to travel
+      private void HandlePosition()
+      {
+         // Get where this block is "supposed" to be
+         Point actualPosition = new Point (
+            parent.Position.X + (parent.IndexOf(this)) * BlockWidth,
+            parent.Position.Y);
+
+         // If this is the same position, do nothing
+         if (actualPosition == position)
+            return;
+
+         // If this is an empty block, don't do any of this
+         if (type == BlockType.Empty)
+         {
+            position = actualPosition;
+            isActive = true;
+            return;
+         }
+
+         // Find the difference in x and y
+         int xDiff = Math.Abs(actualPosition.X - position.X);
+         int yDiff = Math.Abs(actualPosition.Y - position.Y);
+
+         bool newIsActive = true;
+         // Handle X move BEFORE Handling Y move
+         if (xDiff > maximumFrameMove)
+         {
+            newIsActive = false;
+            if (actualPosition.X > position.X)
+               position.X += maximumFrameMove;
+            else
+               position.X -= maximumFrameMove;
+         }
+         else
+         {
+            position.X = actualPosition.X;
+
+            // Handle Y move
+            if (yDiff > maximumFrameMove)
+            {
+               newIsActive = false;
+               if (actualPosition.Y > position.Y)
+                  position.Y += maximumFrameMove;
+               else
+                  position.Y -= maximumFrameMove;
+            }
+            else
+            {
+               position.Y = actualPosition.Y;
+            }
+         }
+         
+         // Update the active flag
+         if(newIsActive != isActive)
+         {
+            isActive = newIsActive;
+            parent.DirtyRowAndColumn(parent.IndexOf(this));
+         }
+         return;
+      }
+
 
       // Main draw method
       public void Draw(SpriteBatch spriteBatch)
@@ -246,6 +321,37 @@ namespace PuzzleLeague
          if (type == BlockType.Empty)
             return; // Never draw empty blocks
 
+         bool draw = GetDrawState();
+
+         if (draw)
+         {
+            // Create a point for the "actual" position of the tile
+            Point drawPosition = new Point(
+               ScaleHelper.ScaleWidth((int)position.X),
+               (int)position.Y);
+
+            // Create a point for the "actual" scale of the tile
+            Point drawScale = ScaleHelper.ScalePoint(new Point(BlockWidth,BlockHeight));
+
+            // Draw the tile
+            spriteBatch.Draw(TileTexture, new Rectangle(drawPosition, drawScale), drawColor);
+
+            // Calculate the "actual" position of the symbol (add 1/4 of the block height)
+            drawPosition.X += (int)Math.Ceiling((float)drawScale.X / 4);
+            drawPosition.Y += (int)Math.Ceiling((float)drawScale.Y / 4);
+
+            // Calculate the scale of the symbol (half of that of the block)
+            drawScale.X /= 2;
+            drawScale.Y /= 2;
+
+            // Draw the symbol
+            spriteBatch.Draw(SymbolTexture, new Rectangle(drawPosition, drawScale), drawColor);
+         }
+      }
+
+      // Used to handle draw state detail
+      private bool GetDrawState()
+      {
          // Decide if we should draw depending on the current block state
          bool draw = true;
          switch (state)
@@ -264,7 +370,6 @@ namespace PuzzleLeague
             // Change draw color to slowly fade
             case BlockState.Disappearing:
                drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
-               // drawColor = new Color(alpha, alpha, alpha, alpha);
                if (drawColor.A == 0)
                {
                   state = BlockState.Removed;
@@ -275,31 +380,7 @@ namespace PuzzleLeague
             case BlockState.Removed:
                draw = false; break;
          }
-
-         if (draw)
-         {
-            // Create a point for the "actual" position of the tile
-            Point actualPosition = new Point(
-               ScaleHelper.ScaleWidth((int)position.X),
-               (int)position.Y);
-
-            // Create a point for the "actual" scale of the tile
-            Point actualScale = ScaleHelper.ScalePoint(new Point(BlockWidth,BlockHeight));
-
-            // Draw the tile
-            spriteBatch.Draw(TileTexture, new Rectangle(actualPosition, actualScale), drawColor);
-
-            // Calculate the "actual" position of the symbol (add 1/4 of the block height)
-            actualPosition.X += (int)Math.Ceiling((float)actualScale.X / 4);
-            actualPosition.Y += (int)Math.Ceiling((float)actualScale.Y / 4);
-
-            // Calculate the scale of the symbol (half of that of the block)
-            actualScale.X /= 2;
-            actualScale.Y /= 2;
-
-            // Draw the symbol
-            spriteBatch.Draw(SymbolTexture, new Rectangle(actualPosition, actualScale), drawColor);
-         }
+         return draw;
       }
    }
 }
