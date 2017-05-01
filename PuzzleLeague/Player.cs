@@ -31,14 +31,9 @@ namespace PuzzleLeague
       public Player(GameBoard parent)
       {
          this.parent = parent;
+         playerTexture = ContentHelper.GetTexture("player");
          InputHelper.ButtonPressed += OnButtonPressed; // Subscribe to InputHelper
          position = new Point(2, 2); // Start somewhere low in the middle
-      }
-
-      // Load the content before it is used
-      public static void LoadContent()
-      {
-         playerTexture = ContentHelper.GetTexture("player");
       }
 
       // Event handler for when a button is pressed in InputHandler
@@ -65,13 +60,19 @@ namespace PuzzleLeague
             case Buttons.Confirm:
                swapOnNextFrame = true;
                break;
+            case Buttons.Enter:
+               if (position.Y - 1 >= 1)
+                  position.Y -= 1;
+               parent.AddRow();
+               break;
          }
       }
 
       // Use this to keep the player in line as more rows get added
       public void OnRowAdded()
       {
-         position.Y += 1;
+         if (position.Y + 1 <= 12)
+            position.Y += 1;
       }
 
       // Main update method
@@ -95,7 +96,8 @@ namespace PuzzleLeague
          drawScale.X = ScaleHelper.ScaleWidth(playerTexture.Width) / 2;
          drawScale.Y = ScaleHelper.ScaleHeight(playerTexture.Height) / 2;
 
-         spriteBatch.Draw(playerTexture, new Rectangle(drawPos, drawScale), Color.White);
+         //spriteBatch.Draw(playerTexture, new Rectangle(drawPos, drawScale), Color.White);
+         spriteBatch.Draw(playerTexture, new Rectangle(drawPos, drawScale), Color.Black);
       }
    }
 }
