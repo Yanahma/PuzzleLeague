@@ -52,7 +52,6 @@ namespace PuzzleLeague
          graphics.ApplyChanges();
          ScaleHelper.UpdateBufferValues(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
 
-         gameBoard = new GameBoard();
          base.Initialize();
       }
 
@@ -81,11 +80,19 @@ namespace PuzzleLeague
 
          // Add player texture
          ContentHelper.AddTexture("player", Content.Load<Texture2D>("Graphics\\player"));
-         Player.LoadContent();
 
          // Add background textures for the GameBoard
          ContentHelper.AddTexture("gameBoardBackground", Content.Load<Texture2D>("Background\\gameBoardBackground"));
          ContentHelper.AddTexture("gameBoardOverlayCheat", Content.Load<Texture2D>("Background\\gameBoardOverlayCheat"));
+
+         // Add UI textures
+         ContentHelper.AddTexture("grey_panel", Content.Load<Texture2D>("Graphics\\grey_panel"));
+
+         // Add font for score
+         ContentHelper.AddFont("KenVectorFutureThin", Content.Load<SpriteFont>("Fonts\\KenVectorFutureThin"));
+
+         // Once all the assets are loaded into the ContentHelper, create the gameboard
+         gameBoard = new GameBoard();
       }
 
       /// <summary>
