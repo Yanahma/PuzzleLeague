@@ -41,11 +41,17 @@
     <Compile Include="Block.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameBoard.cs" />
+    <Compile Include="GUI\GuiButton.cs" />
+    <Compile Include="Interfaces\IScene.cs" />
+    <Compile Include="ParticleEffects\Particle.cs" />
+    <Compile Include="ParticleEffects\ParticleEmitter.cs" />
+    <Compile Include="PauseMenu.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Row.cs" />
     <Compile Include="Score.cs" />
+    <Compile Include="Utilities\Containers\Board.cs" />
     <Compile Include="Utilities\ContentHelper.cs" />
     <Compile Include="Utilities\InputHelper.cs" />
     <Compile Include="Utilities\RandomHelper.cs" />

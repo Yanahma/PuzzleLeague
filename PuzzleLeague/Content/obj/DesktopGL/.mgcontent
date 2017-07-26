@@ -4,20 +4,24 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_27.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_31.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_27.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_35.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_27.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_30.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_27.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_36.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_27.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_33.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Background/gameBoardBackground.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Background/gameBoardOverlayCheat.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/player.png</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Fonts/KenVectorFutureThin.spritefont</File>
-    <File>g:/documents/visual studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/grey_panel.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_27.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileBlue_31.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_27.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileGreen_35.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_27.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tilePink_30.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_27.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileRed_36.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_27.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/tileYellow_33.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Background/gameBoardBackground.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Background/gameBoardOverlayCheat.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Graphics/player.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Fonts/KenVectorFutureThin.spritefont</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/UI/yellow_button04.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/UI/yellow_button05.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/Fonts/KenneySpace.spritefont</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/UI/score_panel.png</File>
+    <File>G:/Documents/Visual Studio 2015/Projects/PuzzleLeague/PuzzleLeague/Content/UI/grey_panel.png</File>
   </SourceFiles>
 </SourceFileCollection>

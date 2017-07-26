@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PuzzleLeague.Utilities;
+using PuzzleLeague.Interfaces;
 
 namespace PuzzleLeague
 {
-   class GameBoard
+   class GameBoard : IScene
    {
       //
       // Private fields
       //
+
+      // Parent Game1 of this GameBoard
+      private Game1 parent;
 
       // Hold an array of six lists, which serve as containing the data of the "columns" 
       private List<Block>[] columns;
@@ -21,8 +25,17 @@ namespace PuzzleLeague
       // The list of rows currently on the GameBoard
       private List<Row> rows;
 
-      // Private timer to add rows to the GameBoard
+      // Private timer to automatically add rows to the GameBoard
       private Timer rowMovingTimer;
+
+      // Private timer to pause the gameboard whilst matches are being made
+      private Timer rowPauseTimer;
+
+      // Private timer to reset the combo if the gameboard is stale
+      private Timer comboResetTimer;
+
+      // Bool controlled partially by the above timer
+      private bool rowPaused = false;
 
       // Private float for the value of the row moving timer
       //private float rowMovingTimerSetValue = 0.8f;
@@ -33,7 +46,7 @@ namespace PuzzleLeague
 
       // Reference to the score object
       private Score score;
-
+      
       //
       // Public constants
       //
@@ -48,10 +61,19 @@ namespace PuzzleLeague
       public int YOffset = 0;
 
       //
+      // Public fields
+      //
+
+      public bool GravityDirty = false;
+
+      //
       // Constructor
       //
-      public GameBoard()
+      public GameBoard(Game1 parent)
       {
+         // Parent game1 of this gameboard
+         this.parent = parent;
+         
          // Init player
          player = new Player(this);
 
@@ -73,11 +95,37 @@ namespace PuzzleLeague
          rowMovingTimer.SetTimer(rowMovingTimerSetValue);
          rowMovingTimer.StartTimer();
 
+         // Init the row pausing timer
+         rowPauseTimer = new Timer(true); // "true" here means it is a looping timer
+         rowPauseTimer.OnComplete += UnpauseGameBoard;
+         rowPauseTimer.SetTimer(2f);
+         rowPauseTimer.StartTimer();
+
+         // Init the combo resetting timer
+         comboResetTimer = new Timer(true); // "true" here means it is a looping timer
+         comboResetTimer.OnComplete += ResetCombo;
+         comboResetTimer.SetTimer(0.5f);
+         comboResetTimer.StartTimer();
+
          // Add the first row
          AddRow();
 
          // Init the scoreboard
          score = new Score();
+      }
+
+      // Method for when button is pressed
+      private void OnButtonPressed(Buttons button)
+      {
+         if(button == Buttons.Pause)
+         {
+            parent.AddScene(new PauseMenu(parent));
+         }
+
+         if(button == Buttons.Escape)
+         {
+            parent.RemoveScene();
+         }
       }
 
       // Mark ALL columns as dirty
@@ -104,20 +152,34 @@ namespace PuzzleLeague
             AddRow(); YOffset = 0; // Reset the Y offset
          }
 
+         // First, check gravity to see if there are any gravity matches (increase combo)
+         if (GravityDirty)
+         {
+            for(var i = 0; i < columns.Length; i++)
+               DoGravity(i);
+
+            if (AnyMatch())
+               score.AddCombo();
+
+            GravityDirty = false;
+         }
+
          // Update the player
          player.Update();
 
-         // Update the rows
+         // Update the rows (update backwards in case of deletions)
          for (var i = rows.Count - 1; i >= 0; i--)
          {
             rows[i].Update();
          }
 
-         // Update the columns (if needed)
-         for (var i = 0; i < columnIsDirty.Length; i++)
+         // FlagAllColumns();
+
+         // Rebuild the columns from the updated rows
+         for (var i = 0; i < columns.Length; i++)
          {
             if (columnIsDirty[i])
-               UpdateColumn(i);
+               BuildColumn(i);
          }
 
          // Check for any matches this frame
@@ -145,6 +207,20 @@ namespace PuzzleLeague
          spriteBatch.Draw(ContentHelper.GetTexture("gameBoardOverlayCheat"), drawTo, Color.White);
       }
 
+      // Do something when the scene is enabled
+      public void OnSceneEnabled()
+      {
+         // Subscribe to button input when we are the active scene
+         InputHelper.ButtonPressed += OnButtonPressed;
+      }
+
+      // Do something when the scene is disabled
+      public void OnSceneDisabled()
+      {
+         // Unsubscribe to button input when we are not the active scene
+         InputHelper.ButtonPressed -= OnButtonPressed;
+      }
+
       // Accessability for Rows to know which position they are in
       public int IndexOf(Row item) => rows.IndexOf(item);
 
@@ -166,9 +242,9 @@ namespace PuzzleLeague
             columnIsDirty[i] = true;
          }
 
-         // Increase speed
-         //rowMovingTimerSetValue -= 0.01f;
-         //rowMovingTimer.SetTimer(rowMovingTimerSetValue);
+         YOffset = 0;
+         // Increase speed/game level
+         // #Unfinished
 
          // Player needs updating when a row is added too
          player.OnRowAdded();
@@ -183,7 +259,28 @@ namespace PuzzleLeague
       // Move all of the rows up a position
       public void MoveRowsUp(object sender, EventArgs e)
       {
-         YOffset += 1;
+         if(!(rowPaused))
+            YOffset += 1;
+      }
+
+      // Unpause the gameboard
+      public void UnpauseGameBoard(object sender, EventArgs e)
+      {
+         if (BoardIsStale())
+         {
+            rowPaused = false;
+         }
+         else
+         {
+            rowPauseTimer.ResetTimer();
+         }
+      }
+
+      // Reset the combo
+      public void ResetCombo(object sender, EventArgs e)
+      {
+         if (BoardIsStale())
+            score.ResetCombo();
       }
 
       // Swap values on a specified row at specified position + position+1 (player drawn from top left corner)
@@ -195,22 +292,32 @@ namespace PuzzleLeague
             // Call the row swap method
             rows[y].SwapAt(x, x + 1);
 
+            // If either of these blocks were empty, gravity might be dirty
+            if(rows[y][x].Type == BlockType.Empty
+               || rows[y][x+1].Type == BlockType.Empty)
+            {
+               GravityDirty = true;
+            }
+
             // Flag both columns affected as dirty
             FlagColumn(x);
             FlagColumn(x + 1);
+            
          }
       }
 
-      // Update a column in the columns array (check for empties and "drop" blocks into place)
-      private void UpdateColumn(int columnIndex)
+      // Rebuild a column from the row data
+      private void BuildColumn(int columnIndex)
       {
-         // Rebuild the new row
          columns[columnIndex].Clear();
-         foreach (Row r in rows)
-         {
-            columns[columnIndex].Add(r[columnIndex]);
-         }
+         for (var i = 0; i < rows.Count; i++)
+            columns[columnIndex].Add(rows[i][columnIndex]);
+      }
 
+      // Replicate a "gravity" effect (check for empties and "drop" blocks into place)
+      // Boolean return if any blocks were moved due to gravity (used for combos)
+      private void DoGravity(int columnIndex)
+      {
          // Queue up the empty positions in the column, to later add blocks to
          Queue<int> dropPositions = new Queue<int>();
 
@@ -226,44 +333,70 @@ namespace PuzzleLeague
             {
                if (dropPositions.Count > 0) // If there are any empty spaces below us
                {
-                  // Get the "nextPosition" (lowest empty space)
-                  int nextPosition = dropPositions.Dequeue();
+                  if (thisBlock.CanBeSwapped)
+                  {
+                     // Get the "nextPosition" (lowest empty space)
+                     int nextPosition = dropPositions.Dequeue();
 
-                  // Add an empty block where this one was
-                  rows[i].AddBlock(new Block(rows[i], BlockType.Empty), columnIndex);
-                  dropPositions.Enqueue(i); // (Also queue this new empty space)
+                     // Add an empty block where this one was
+                     rows[i].AddBlock(new Block(rows[i], BlockType.Empty), columnIndex);
+                     dropPositions.Enqueue(i); // (Also queue this new empty space)
 
-                  // Add the current block to the empty space
-                  rows[nextPosition].AddBlock(thisBlock, columnIndex);
-                  rows[nextPosition].isDirty = true;
+                     // Add the current block to the empty space
+                     rows[nextPosition].AddBlock(thisBlock, columnIndex);
+                     rows[nextPosition].isDirty = true;
 
-                  // Update the column as well
-                  columns[columnIndex][i] = rows[i][columnIndex];
-                  columns[columnIndex][nextPosition] = rows[nextPosition][columnIndex];
+                     // Update the column as well
+                     columns[columnIndex][i] = rows[i][columnIndex];
+                     columns[columnIndex][nextPosition] = rows[nextPosition][columnIndex];
+                  }
+                  else
+                  {
+                     // If we reach here, we have found a block that cannot be moved; therefore, all
+                     // blocks above it can only drop above it (avoid "clipping" through inactive blocks)
+                     dropPositions.Clear();
+                  }
                }
             }
          }
       }
 
-      // #UNUSED 
-      // Build all of the column arrays
-      private void BuildAllColumns()
+      // Checks to see if there are any "active" blocks (matched/moving)
+      // As we want to pause the game board whilst there are, and start moving it again if not
+      private bool BoardIsStale()
       {
-         // Init the array of lists
-         for (var i = 0; i < columns.Length; i++)
+         bool isStale = true;
+         for (var i = 0; i < rows.Count && isStale; i++)
          {
-            columns[i].Clear();
-            columnIsDirty[i] = true;
-         }
-
-         // Loop through rows & add to each column
-         foreach (Row r in rows)
-         {
-            for (var i = 0; i < columns.Length; i++)
+            for(var j = 0; j < rows[i].Blocks.Length && isStale; j++)
             {
-               columns[i].Add(r[i]);
+               if (!(rows[i][j].CanBeSwapped))
+                  isStale = false;
             }
          }
+         return isStale;
+      }
+
+      // Used to check if there are any matches currently on the game board
+      // (Returns true as soon as a single one is found
+      private bool AnyMatch()
+      {
+         bool anyMatches = false;
+         // Check rows
+         for (var i = 0; i < rows.Count && !(anyMatches); i++)
+         {
+            var matchedBlocks = CheckMatches(rows[i].Blocks);
+            if (matchedBlocks.Count > 0)
+               anyMatches = true;
+         }
+         // Check columns
+         for(var i = 0; i < columns.Length && !(anyMatches); i++)
+         {
+            var matchedBlocks = CheckMatches(columns[i]);
+            if (matchedBlocks.Count > 0)
+               anyMatches = true;
+         }
+         return anyMatches;
       }
 
       // Method to check for matches in the rows and columns (not to be confused w/ "CheckMatches")
@@ -312,10 +445,15 @@ namespace PuzzleLeague
          }
 
          // Finally, tag all the blocks that have been matched
-         foreach (Block block in allMatchedBlocks)
+         if (allMatchedBlocks.Count > 0)
          {
-            block.OnMatched();
-            score.AddScore(RandomHelper.Next(100, 999));
+            rowPaused = true;
+            rowPauseTimer.ResetTimer();
+            foreach (Block block in allMatchedBlocks)
+            {
+               block.OnMatched();
+               score.AddScore();
+            }
          }
       }
 
@@ -343,24 +481,34 @@ namespace PuzzleLeague
                // add the next block (pos + 1) & progress one block (following a chain)
                if (prevSame)
                {
-                  matchedBlocks.Add(blocks[pos + 1]);
                   pos += 1;
+                  matchedBlocks.Add(blocks[pos]);
                }
                // Otherwise, check the previous block is of the same type, and add all three
                // blocks if they match (and set "prevSame" flag to begin chain checking)
                else if (blocks[pos - 1].CanBeMatched
                   && blocks[pos - 1].Type == blocks[pos].Type)
                {
-                  matchedBlocks.Add(blocks[pos - 1]);
-                  matchedBlocks.Add(blocks[pos]);
-                  matchedBlocks.Add(blocks[pos + 1]);
+                  for(var i = pos - 1; i <= pos + 1; i++)
+                     matchedBlocks.Add(blocks[i]);
                   prevSame = true;
                   pos += 1;
                }
                // Otherwise, check the next block to confirm this is a chain of three
+               // (Also make sure we don't get an out of index error)
+               else if ((pos + 2) <= blocks.Count - 1
+                  && blocks[pos + 2].CanBeMatched
+                  && blocks[pos + 2].Type == blocks[pos].Type)
+               {
+                  for(var i = pos; i<= pos + 2; i++)
+                     matchedBlocks.Add(blocks[i]);
+                  prevSame = true;
+                  pos += 2;
+               }
+               // Otherwise, skip onto the next potential chain
                else
                {
-                  pos += 1;
+                  pos += 3;
                }
             }
             else

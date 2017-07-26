@@ -93,6 +93,7 @@ namespace PuzzleLeague
       {
          blocks[index] = new Block(this, BlockType.Empty);
          parent.FlagColumn(index); // Flag column as dirty
+         parent.GravityDirty = true; // Flag that there are potential "gravity" moves
          isDirty = true; // Flag row as dirty
       }
 
@@ -167,6 +168,7 @@ namespace PuzzleLeague
       {
          isDirty = true;
          parent.FlagColumn(columnIndex);
+         parent.GravityDirty = true;
       }
    }
 }

@@ -21,4 +21,8 @@ g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Background\gameBoardOverlayCheat.xnb
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Graphics\player.xnb
 g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Fonts\KenVectorFutureThin.xnb
-g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Graphics\grey_panel.xnb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\UI\yellow_button04.xnb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\UI\yellow_button05.xnb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\UI\grey_panel.xnb
+g:\documents\visual studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\Fonts\KenneySpace.xnb
+g:\Documents\Visual Studio 2015\Projects\PuzzleLeague\PuzzleLeague\bin\DesktopGL\x86\Debug\Content\UI\score_panel.xnb

@@ -22,7 +22,7 @@ namespace PuzzleLeague
    /// <summary>
    /// Class that describes information associated with a single block on the GameBoard
    /// </summary>
-   class Block
+   class Block 
    {
       //
       // Private Fields
@@ -37,6 +37,9 @@ namespace PuzzleLeague
       // Defines whether this block can be matched/moved etc.
       private bool isActive = true;
 
+      // Defines whether or not to draw the block on this frame
+      private bool drawThisFrame = false;
+
       // Defines the X,Y position of this Block
       private Point position;
 
@@ -50,7 +53,7 @@ namespace PuzzleLeague
       private BlockState state;
 
       // Defines which type of Block this is (cannot change)
-      private BlockType type;
+      private readonly BlockType type;
 
       // Get-only access to the tile texture (based on type)
       private Texture2D TileTexture
@@ -106,15 +109,17 @@ namespace PuzzleLeague
       private enum BlockState
       {
          None,
-         Falling,
          Blinking,
          Disappearing,
          Removed
       }
 
       //
-      // Public Properties
+      // Public fields
       //
+
+      // Whether or not to check for gravity this frame
+      public bool GravityDirty = false;
 
       // Public property that holds the conditions in which this block can be matched
       public bool CanBeMatched
@@ -241,13 +246,51 @@ namespace PuzzleLeague
       {
          if (parent != null)
          {
-            HandlePosition();
-            if (state == BlockState.Removed)
+            HandleDrawState();
+            if (state != BlockState.Removed)
             {
-               type = BlockType.Empty;
-               parent.RemoveBlock(parent.IndexOf(this));
-               parent = null;
+               HandlePosition();
             }
+         }
+      }
+
+      // Handle updates to the draw state on this frame
+      private void HandleDrawState()
+      {
+         // If we are in "disappearing" mode and the alpha of our draw color is zero,
+         // We have disappeared and are therefore removed from the gameboard
+         if (state == BlockState.Disappearing
+            && drawColor.A == 0)
+         {
+            // Emit particles
+            // ParticleEmitter.CreateParticles(10, (ParticleType)type, ParticleMovement.Track, new Vector2(position.X, position.Y), new Vector2(500f, 500f), new Vector2(1100,50));
+
+            // This means we should be remove ourselves from the parent row
+            state = BlockState.Removed;
+            parent.RemoveBlock(parent.IndexOf(this));
+            parent = null;
+         }
+
+         // Decide if we should draw depending on the current block state
+         switch (state)
+         {
+            // Draw default block
+            case BlockState.None:
+               drawThisFrame = true; break;
+            // Draw blinking block every other frame
+            case BlockState.Blinking:
+               drawThisFrame = true;
+               if (Time.FrameCount % 2 == 0)
+                  drawThisFrame = false;
+               break;
+            // Change draw color to slowly fade
+            case BlockState.Disappearing:
+               drawThisFrame = true;
+               drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
+               break;
+            // Do not draw "removed" blocks
+            case BlockState.Removed:
+               drawThisFrame = false; break;
          }
       }
 
@@ -304,16 +347,14 @@ namespace PuzzleLeague
                position.Y = actualPosition.Y;
             }
          }
-         
+
          // Update the active flag
-         if(newIsActive != isActive)
+         if (newIsActive != isActive)
          {
             isActive = newIsActive;
             parent.DirtyRowAndColumn(parent.IndexOf(this));
          }
-         return;
       }
-
 
       // Main draw method
       public void Draw(SpriteBatch spriteBatch)
@@ -321,9 +362,7 @@ namespace PuzzleLeague
          if (type == BlockType.Empty)
             return; // Never draw empty blocks
 
-         bool draw = GetDrawState();
-
-         if (draw)
+         if (drawThisFrame)
          {
             // Create a point for the "actual" position of the tile
             Point drawPosition = new Point(
@@ -347,40 +386,6 @@ namespace PuzzleLeague
             // Draw the symbol
             spriteBatch.Draw(SymbolTexture, new Rectangle(drawPosition, drawScale), drawColor);
          }
-      }
-
-      // Used to handle draw state detail
-      private bool GetDrawState()
-      {
-         // Decide if we should draw depending on the current block state
-         bool draw = true;
-         switch (state)
-         {
-            // Draw default block
-            case BlockState.None:
-               break;
-            // Draw falling block
-            case BlockState.Falling:
-               break;
-            // Draw blinking block every other frame
-            case BlockState.Blinking:
-               if (Time.FrameCount % 2 == 0)
-                  draw = false;
-               break;
-            // Change draw color to slowly fade
-            case BlockState.Disappearing:
-               drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
-               if (drawColor.A == 0)
-               {
-                  state = BlockState.Removed;
-                  draw = false;
-               }
-               break;
-            // Do not draw "removed" blocks
-            case BlockState.Removed:
-               draw = false; break;
-         }
-         return draw;
       }
    }
 }

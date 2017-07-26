@@ -38,7 +38,7 @@ namespace PuzzleLeague.Utilities
                && this.isLooping)
             {
                // Don't actually stop a looping timer when time remaining reaches 0
-               timeRemaining = lastTimeRemaining;
+               timeRemaining = prevTimeRemaining;
             }
             else
             {
@@ -67,7 +67,7 @@ namespace PuzzleLeague.Utilities
       }
 
       // The last "timeRemaining" set on this timer - used for looping timers
-      private float lastTimeRemaining;
+      private float prevTimeRemaining;
 
       // Public event used to trigger events once the timer has been completed
       public event EventHandler OnComplete;
@@ -84,7 +84,7 @@ namespace PuzzleLeague.Utilities
       public void SetTimer(float time)
       {
          timeRemaining = time;
-         lastTimeRemaining = timeRemaining;      
+         prevTimeRemaining = timeRemaining;      
       }
 
       // Public method to start the timer
@@ -93,6 +93,12 @@ namespace PuzzleLeague.Utilities
          State = TimerState.Started;
          if (!(timerList.Contains(this)))
             timerList.Add(this);
+      }
+
+      // Public method to reset the timer
+      public void ResetTimer()
+      {
+         timeRemaining = prevTimeRemaining;
       }
 
       // Public method to stop the timer

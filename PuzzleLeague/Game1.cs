@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using PuzzleLeague.Utilities;
+using PuzzleLeague.Interfaces;
 
 namespace PuzzleLeague
 {
@@ -23,7 +24,8 @@ namespace PuzzleLeague
       private SpriteBatch spriteBatch;
 
       // The current GameBoard (temp - replace with scenes)
-      private GameBoard gameBoard;
+      private Stack<IScene> scenes;
+      //private GameBoard gameBoard;
 
       //
       // Constructor
@@ -51,6 +53,8 @@ namespace PuzzleLeague
          //graphics.PreferredBackBufferHeight = 1080;
          graphics.ApplyChanges();
          ScaleHelper.UpdateBufferValues(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
+
+         IsMouseVisible = true;
 
          base.Initialize();
       }
@@ -86,13 +90,20 @@ namespace PuzzleLeague
          ContentHelper.AddTexture("gameBoardOverlayCheat", Content.Load<Texture2D>("Background\\gameBoardOverlayCheat"));
 
          // Add UI textures
-         ContentHelper.AddTexture("grey_panel", Content.Load<Texture2D>("Graphics\\grey_panel"));
+         ContentHelper.AddTexture("grey_panel", Content.Load<Texture2D>("UI\\grey_panel"));
+         ContentHelper.AddTexture("score_panel", Content.Load<Texture2D>("UI\\score_panel"));
+         ContentHelper.AddTexture("yellow_button04", Content.Load<Texture2D>("UI\\yellow_button04"));
+         ContentHelper.AddTexture("yellow_button05", Content.Load<Texture2D>("UI\\yellow_button05"));
 
          // Add font for score
          ContentHelper.AddFont("KenVectorFutureThin", Content.Load<SpriteFont>("Fonts\\KenVectorFutureThin"));
+         ContentHelper.AddFont("KenneySpace", Content.Load<SpriteFont>("Fonts\\KenneySpace"));
 
          // Once all the assets are loaded into the ContentHelper, create the gameboard
-         gameBoard = new GameBoard();
+         scenes = new Stack<IScene>();
+         AddScene(new GameBoard(this));
+         // scenes.Push(new GameBoard(this));
+         // gameBoard = new GameBoard();
       }
 
       /// <summary>
@@ -109,10 +120,6 @@ namespace PuzzleLeague
       /// <param name="gameTime">Provides a snapshot of timing values.</param>
       protected override void Update(GameTime gameTime)
       {
-         // Emergency exit
-         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-
          // Update the static "Time" class
          Time.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -122,8 +129,16 @@ namespace PuzzleLeague
          // Update the input helper class to detect input on this frame
          InputHelper.Update();
 
-         // Update the active gameboard
-         gameBoard.Update();
+         // Update the active scene
+         if (scenes.Count > 0)
+            scenes.Peek().Update();
+         else
+            Exit();
+
+         // Update particle effects
+         ParticleEmitter.Update();
+
+         //gameBoard.Update();
 
          base.Update(gameTime);
       }
@@ -137,11 +152,49 @@ namespace PuzzleLeague
          GraphicsDevice.Clear(Color.CornflowerBlue);
          spriteBatch.Begin();
 
-         // Draw the active gameboard
-         gameBoard.Draw(spriteBatch);
+         // Draw the active scene
+         scenes.Peek().Draw(spriteBatch);
+         //gameBoard.Draw(spriteBatch);
+
+         // Draw particle effects
+         ParticleEmitter.Draw(spriteBatch);
 
          spriteBatch.End();
          base.Draw(gameTime);
+      }
+
+      // Add a scene to the scene stack
+      public void AddScene(IScene scene)
+      {
+         if(scenes.Count > 0)
+            scenes.Peek().OnSceneDisabled();
+
+         scenes.Push(scene);
+         scenes.Peek().OnSceneEnabled();
+      }
+
+      // Remove a scene from the scene stack
+      public void RemoveScene()
+      {
+         scenes.Peek().OnSceneDisabled();
+         scenes.Pop();
+         
+         // If there is a scene below this one, enabled it
+         if (scenes.Count > 0)
+            scenes.Peek().OnSceneEnabled();
+      }
+
+      // Clear the scenes stack and add a scene to it
+      public void GotoScene(IScene scene)
+      {
+         // If we have existing scene/s in our stack, clear and disable them
+         if (scenes.Count > 0) {
+            scenes.Peek().OnSceneDisabled();
+            scenes.Clear();
+         }
+         // Add scene & enable it
+         scenes.Push(scene);
+         scenes.Peek().OnSceneEnabled();
       }
    }
 }

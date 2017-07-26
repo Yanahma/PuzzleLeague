@@ -74,6 +74,5 @@ namespace PuzzleLeague.Utilities
          else
             throw new IndexOutOfRangeException("Attempting to retrieve a SpriteFont that isn't loaded in ContentHelper");
       }
-
    }
 }

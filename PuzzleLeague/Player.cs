@@ -32,7 +32,8 @@ namespace PuzzleLeague
       {
          this.parent = parent;
          playerTexture = ContentHelper.GetTexture("player");
-         InputHelper.ButtonPressed += OnButtonPressed; // Subscribe to InputHelper
+         InputHelper.ButtonPressed += OnButtonPressed; // Subscribe to Button Presses
+         InputHelper.MouseMoved += OnMouseMoved; // Subscribe to Mouse Moves
          position = new Point(2, 2); // Start somewhere low in the middle
       }
 
@@ -42,25 +43,25 @@ namespace PuzzleLeague
          switch (buttonPressed)
          {
             case Buttons.Left:
-               if (position.X - 1 >= 0)
+               if (position.X > 0)
                   position.X -= 1;
                break;
             case Buttons.Right:
-               if (position.X + 1 <= 4)
+               if (position.X < 4)
                   position.X += 1;
                break;
             case Buttons.Down:
-               if (position.Y - 1 >= 1)
+               if (position.Y > 1)
                   position.Y -= 1;
                break;
             case Buttons.Up:
-               if (position.Y + 1 <= 12)
+               if (position.Y < 12)
                   position.Y += 1;
                break;
-            case Buttons.Confirm:
+            case Buttons.Swap:
                swapOnNextFrame = true;
                break;
-            case Buttons.Enter:
+            case Buttons.AddRow:
                if (position.Y - 1 >= 1)
                   position.Y -= 1;
                parent.AddRow();
@@ -68,18 +69,39 @@ namespace PuzzleLeague
          }
       }
 
+      // This needs polishing
+      private void OnMouseMoved(Point mousePosition)
+      {
+         mousePosition.X -= ScaleHelper.ScaleWidth(GameBoard.GameBoardXAnchor);
+         // mousePosition.X -= ScaleHelper.ScaleWidth(Block.BlockWidth) / 2;
+         mousePosition.Y -= ScaleHelper.ScaleHeight(Block.BlockHeight);
+
+         position.X = mousePosition.X / ScaleHelper.ScaleWidth(Block.BlockWidth);
+         position.Y = 12 - (mousePosition.Y / ScaleHelper.ScaleHeight(Block.BlockHeight));
+
+         // Make sure X & Y are within bounds
+         position.X = Math.Min(position.X, 4);
+         position.X = Math.Max(position.X, 0);
+
+         position.Y = Math.Min(position.Y, 12);
+         position.Y = Math.Max(position.Y, 1);
+      }
+
       // Use this to keep the player in line as more rows get added
       public void OnRowAdded()
       {
-         if (position.Y + 1 <= 12)
-            position.Y += 1;
+         if (!(InputHelper.MouseEnabled))
+         {
+            if (position.Y + 1 <= 12)
+               position.Y += 1;
+         }
       }
 
       // Main update method
       public void Update()
       {
          if (swapOnNextFrame) // Used to defer the swapping of blocks until the next update loop
-         { 
+         {
             parent.SwapAt(position.X, position.Y);
             swapOnNextFrame = false;
          }
