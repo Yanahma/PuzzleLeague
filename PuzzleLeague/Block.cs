@@ -22,7 +22,7 @@ namespace PuzzleLeague
    /// <summary>
    /// Class that describes information associated with a single block on the GameBoard
    /// </summary>
-   class Block 
+   class Block : IEquatable<Block>
    {
       //
       // Private Fields
@@ -43,9 +43,6 @@ namespace PuzzleLeague
       // Defines the X,Y position of this Block
       private Point position;
 
-      // Defines who this Block belongs to (used for positioning)
-      private Row parent;
-
       // Timer used to time the blinking/disappearing
       private Timer blockStateTimer;
 
@@ -53,7 +50,8 @@ namespace PuzzleLeague
       private BlockState state;
 
       // Defines which type of Block this is (cannot change)
-      private readonly BlockType type;
+      //private readonly BlockType type;
+      private BlockType type;
 
       // Get-only access to the tile texture (based on type)
       private Texture2D TileTexture
@@ -118,25 +116,14 @@ namespace PuzzleLeague
       // Public fields
       //
 
-      // Whether or not to check for gravity this frame
-      public bool GravityDirty = false;
-
       // Public property that holds the conditions in which this block can be matched
       public bool CanBeMatched
       {
          get
          {
-            // Not already matched
-            if (!(isMatched)
-               // Not an empty block
-               && !(type == BlockType.Empty)
-               // Parent is active
-               && parent.isActive
-               // Block is active
-               && isActive)
-            {
+            // Not matched, is active and isn't empty
+            if (!(isMatched) && isActive && !(type == BlockType.Empty))
                return true;
-            }
 
             return false;
          }
@@ -147,15 +134,23 @@ namespace PuzzleLeague
       {
          get
          {
-            // Not already matched
-            if (!(isMatched)
-            // Block is active
-               && isActive)
-            {
+            // Empty types can always be swapped
+            if (type == BlockType.Empty)
                return true;
-            }
+
+            // Not already matched & block is active
+            if (!(isMatched) && isActive)
+               return true;
+
             return false;
          }
+      }
+
+      // Public access to "isActive"
+      public bool IsActive
+      {
+         get { return isActive; }
+         set { isActive = value; }
       }
 
       // Public accessor for 'type' field 
@@ -177,11 +172,9 @@ namespace PuzzleLeague
       //
       // Constructor
       //
-      public Block(Row parent, BlockType type = BlockType.Empty)
-      {
-         // Assign parent
-         this.parent = parent;
 
+      public Block(BlockType type = BlockType.Empty)
+      {
          // Assign block type
          this.type = type;
 
@@ -189,23 +182,6 @@ namespace PuzzleLeague
          blockStateTimer = new Timer();
          blockStateTimer.OnComplete += SetStateDisappearing;
          blockStateTimer.SetTimer(1);
-      }
-
-      // Alter the parent of this block
-      public void SetParent(Row parent)
-      {
-         this.parent = parent;
-      }
-
-      // Set default position based on parent
-      public void ResetPosition()
-      {
-         if (parent != null)
-         {
-            position = new Point(
-            parent.Position.X + (parent.IndexOf(this)) * BlockWidth,
-            parent.Position.Y);
-         }
       }
 
       // Code to handle when this block gets matched
@@ -230,78 +206,39 @@ namespace PuzzleLeague
       }
 
       // Return a random block (doesn't include empty)
-      public static Block RndBlockExcEmpty(Row parent)
+      public static Block RndBlockExcEmpty()
       {
-         return new Block(parent, (BlockType)RandomHelper.Next(1, 6));
+         return new Block((BlockType)RandomHelper.Next(1, 6));
       }
 
       // Return a random block (includes empty)
-      public static Block RndBlockIncEmpty(Row parent)
+      public static Block RndBlockIncEmpty()
       {
-         return new Block(parent, (BlockType)RandomHelper.Next(0, 6));
+         return new Block((BlockType)RandomHelper.Next(0, 6));
       }
 
-      // Main update method
-      public void Update()
+      // Returns the expected block position from the x,y of the board structure
+      // as well as the current Y offset of the board
+      private Point GetBlockPosition(int x, int y, int offset)
       {
-         if (parent != null)
-         {
-            HandleDrawState();
-            if (state != BlockState.Removed)
-            {
-               HandlePosition();
-            }
-         }
+         return new Point(
+            GameBoard.GameBoardXAnchor + (x * BlockWidth),
+            ScaleHelper.BackBufferHeight - (offset + (y * BlockHeight))
+            );
       }
 
-      // Handle updates to the draw state on this frame
-      private void HandleDrawState()
+      // Like Update, but more forceful
+      public void ForcePosition(int x, int y, int offset)
       {
-         // If we are in "disappearing" mode and the alpha of our draw color is zero,
-         // We have disappeared and are therefore removed from the gameboard
-         if (state == BlockState.Disappearing
-            && drawColor.A == 0)
-         {
-            // Emit particles
-            // ParticleEmitter.CreateParticles(10, (ParticleType)type, ParticleMovement.Track, new Vector2(position.X, position.Y), new Vector2(500f, 500f), new Vector2(1100,50));
-
-            // This means we should be remove ourselves from the parent row
-            state = BlockState.Removed;
-            parent.RemoveBlock(parent.IndexOf(this));
-            parent = null;
-         }
-
-         // Decide if we should draw depending on the current block state
-         switch (state)
-         {
-            // Draw default block
-            case BlockState.None:
-               drawThisFrame = true; break;
-            // Draw blinking block every other frame
-            case BlockState.Blinking:
-               drawThisFrame = true;
-               if (Time.FrameCount % 2 == 0)
-                  drawThisFrame = false;
-               break;
-            // Change draw color to slowly fade
-            case BlockState.Disappearing:
-               drawThisFrame = true;
-               drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
-               break;
-            // Do not draw "removed" blocks
-            case BlockState.Removed:
-               drawThisFrame = false; break;
-         }
+         position = GetBlockPosition(x, y, offset);
       }
 
+      // Move the block, but enforce a maximum amount of movement (tween it)
       int maximumFrameMove = 10;
-      // Used to "animate" the block if the new position is too far to travel
-      private void HandlePosition()
+      public void UpdatePosition(int x, int y, int offset)
       {
          // Get where this block is "supposed" to be
-         Point actualPosition = new Point (
-            parent.Position.X + (parent.IndexOf(this)) * BlockWidth,
-            parent.Position.Y);
+         Point actualPosition = GetBlockPosition(x, y, offset);
 
          // If this is the same position, do nothing
          if (actualPosition == position)
@@ -352,7 +289,61 @@ namespace PuzzleLeague
          if (newIsActive != isActive)
          {
             isActive = newIsActive;
-            parent.DirtyRowAndColumn(parent.IndexOf(this));
+         }
+      }
+
+      // Main update method
+      public void Update()
+      {
+         /*if (parent != null)
+         {
+            HandleDrawState();
+            if (state != BlockState.Removed)
+            {
+               HandlePosition();
+            }
+         }*/
+         HandleDrawState();
+      }
+
+      // Handle updates to the draw state on this frame
+      private void HandleDrawState()
+      {
+         // If we are in "disappearing" mode and the alpha of our draw color is zero,
+         // We have disappeared and are therefore removed from the gameboard
+         if (state == BlockState.Disappearing
+            && drawColor.A == 0)
+         {
+            // Emit particles
+            // ParticleEmitter.CreateParticles(10, (ParticleType)type, ParticleMovement.Track, new Vector2(position.X, position.Y), new Vector2(500f, 500f), new Vector2(1100,50));
+
+            // This means we should be remove ourselves from the parent row
+            state = BlockState.Removed;
+            // parent.RemoveBlock(parent.IndexOf(this));
+            // parent = null;
+         }
+
+         // Decide if we should draw depending on the current block state
+         switch (state)
+         {
+            // Draw default block
+            case BlockState.None:
+               drawThisFrame = true; break;
+            // Draw blinking block every other frame
+            case BlockState.Blinking:
+               drawThisFrame = true;
+               if (Time.FrameCount % 2 == 0)
+                  drawThisFrame = false;
+               break;
+            // Change draw color to slowly fade
+            case BlockState.Disappearing:
+               drawThisFrame = true;
+               drawColor.A = (byte)Math.Max(0, drawColor.A - 15);
+               break;
+            // Do not draw "removed" blocks
+            case BlockState.Removed:
+               type = BlockType.Empty;
+               drawThisFrame = false; break;
          }
       }
 
@@ -386,6 +377,11 @@ namespace PuzzleLeague
             // Draw the symbol
             spriteBatch.Draw(SymbolTexture, new Rectangle(drawPosition, drawScale), drawColor);
          }
+      }
+
+      public bool Equals(Block other)
+      {
+         return position == other.position;
       }
    }
 }
